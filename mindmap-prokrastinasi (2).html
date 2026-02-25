@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Map – Prokrastinasi Belajar Bahasa Jepang</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d14;
+    --center: #e8c84a;
+    --c1: #ff6b6b;
+    --c2: #4ecdc4;
+    --c3: #a78bfa;
+    --c4: #fb923c;
+    --c5: #34d399;
+    --text: #f0ede8;
+    --card-bg: rgba(255,255,255,0.05);
+    --glow: rgba(232,200,74,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background noise texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 20px;
+    position: relative; z-index: 1;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--center); border: 1px solid var(--center);
+    padding: 4px 16px; border-radius: 20px; margin-bottom: 20px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(22px, 4vw, 42px);
+    font-weight: 700; line-height: 1.3;
+    color: var(--center);
+    text-shadow: 0 0 40px rgba(232,200,74,0.4);
+    animation: fadeUp 0.7s ease both;
+  }
+  .hero .sub {
+    margin-top: 10px; font-size: 13px; color: rgba(240,237,232,0.5);
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero .kanji {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(40px, 8vw, 80px); color: rgba(232,200,74,0.08);
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    letter-spacing: 10px; user-select: none;
+  }
+  .respondent-badge {
+    display: inline-block; margin-top: 14px;
+    background: rgba(232,200,74,0.1); border: 1px solid rgba(232,200,74,0.3);
+    padding: 6px 20px; border-radius: 20px; font-size: 12px;
+    animation: fadeUp 0.9s ease both;
+  }
+  .respondent-badge span { color: var(--center); font-weight: 700; font-size: 15px; }
+
+  /* ─── MIND MAP CANVAS ─── */
+  .mindmap {
+    position: relative; width: 100%;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 20px; z-index: 1;
+  }
+
+  /* Center node */
+  .center-node {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: radial-gradient(circle, #f0c430 0%, #c89a20 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 16px;
+    box-shadow: 0 0 60px rgba(232,200,74,0.5), 0 0 120px rgba(232,200,74,0.2);
+    position: relative; z-index: 10;
+    animation: pulse 3s ease-in-out infinite, fadeIn 1s ease both;
+    flex-shrink: 0;
+  }
+  .center-node .jp { font-family: 'Noto Serif JP'; font-size: 20px; color: #1a1600; }
+  .center-node .id { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #3d2e00; text-transform: uppercase; margin-top: 2px; }
+
+  /* ─── BRANCHES GRID ─── */
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    width: 100%; max-width: 1200px;
+    margin-top: 40px;
+  }
+
+  .branch {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative; overflow: hidden;
+    backdrop-filter: blur(4px);
+    animation: fadeUp 1s ease both;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+  }
+  .branch:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .branch::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .branch.c1::before { background: var(--c1); }
+  .branch.c2::before { background: var(--c2); }
+  .branch.c3::before { background: var(--c3); }
+  .branch.c4::before { background: var(--c4); }
+  .branch.c5::before { background: var(--c5); }
+
+  .branch-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+  }
+  .branch-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .c1 .branch-icon { background: rgba(255,107,107,0.15); }
+  .c2 .branch-icon { background: rgba(78,205,196,0.15); }
+  .c3 .branch-icon { background: rgba(167,139,250,0.15); }
+  .c4 .branch-icon { background: rgba(251,146,60,0.15); }
+  .c5 .branch-icon { background: rgba(52,211,153,0.15); }
+
+  .branch-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .c1 .branch-title { color: var(--c1); }
+  .c2 .branch-title { color: var(--c2); }
+  .c3 .branch-title { color: var(--c3); }
+  .c4 .branch-title { color: var(--c4); }
+  .c5 .branch-title { color: var(--c5); }
+
+  /* Items */
+  .item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 8px;
+    transition: background 0.2s;
+  }
+  .item:hover { background: rgba(255,255,255,0.07); }
+  .item:last-child { margin-bottom: 0; }
+
+  .item-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .c1 .item-dot { background: var(--c1); }
+  .c2 .item-dot { background: var(--c2); }
+  .c3 .item-dot { background: var(--c3); }
+  .c4 .item-dot { background: var(--c4); }
+  .c5 .item-dot { background: var(--c5); }
+
+  .item-text { font-size: 12px; color: rgba(240,237,232,0.85); line-height: 1.4; flex: 1; }
+
+  .item-pct {
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .c1 .item-pct { color: var(--c1); }
+  .c2 .item-pct { color: var(--c2); }
+  .c3 .item-pct { color: var(--c3); }
+  .c4 .item-pct { color: var(--c4); }
+  .c5 .item-pct { color: var(--c5); }
+
+  /* Progress bar */
+  .bar-wrap {
+    height: 4px; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 4px;
+  }
+  .bar { height: 100%; border-radius: 4px; transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  .c1 .bar { background: var(--c1); }
+  .c2 .bar { background: var(--c2); }
+  .c3 .bar { background: var(--c3); }
+  .c4 .bar { background: var(--c4); }
+  .c5 .bar { background: var(--c5); }
+
+  /* ─── CONCLUSION SECTION ─── */
+  .conclusion {
+    max-width: 1200px; width: 100%; margin: 40px auto 0; padding: 0 20px;
+    z-index: 1; position: relative;
+  }
+  .conclusion-box {
+    background: linear-gradient(135deg, rgba(232,200,74,0.08), rgba(232,200,74,0.02));
+    border: 1px solid rgba(232,200,74,0.25);
+    border-radius: 20px; padding: 32px;
+    animation: fadeUp 1.2s ease both;
+  }
+  .conclusion-box h2 {
+    font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--center); margin-bottom: 16px;
+  }
+  .conclusion-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;
+  }
+  .key-stat {
+    text-align: center; padding: 16px;
+    background: rgba(255,255,255,0.03); border-radius: 12px;
+  }
+  .key-stat .num {
+    font-size: 36px; font-weight: 900; line-height: 1;
+  }
+  .key-stat .label { font-size: 11px; color: rgba(240,237,232,0.55); margin-top: 6px; line-height: 1.4; }
+
+  .summary-text {
+    margin-top: 20px; font-size: 13px; color: rgba(240,237,232,0.7);
+    line-height: 1.8; border-left: 3px solid var(--center);
+    padding-left: 16px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center; padding: 40px 20px;
+    font-size: 11px; color: rgba(240,237,232,0.25);
+    letter-spacing: 2px; text-transform: uppercase;
+    z-index: 1; position: relative;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 60px rgba(232,200,74,0.5), 0 0 120px rgba(232,200,74,0.2); }
+    50% { box-shadow: 0 0 80px rgba(232,200,74,0.7), 0 0 160px rgba(232,200,74,0.35); }
+  }
+
+  /* Stagger delays */
+  .branch:nth-child(1) { animation-delay: 0.1s; }
+  .branch:nth-child(2) { animation-delay: 0.2s; }
+  .branch:nth-child(3) { animation-delay: 0.3s; }
+  .branch:nth-child(4) { animation-delay: 0.4s; }
+  .branch:nth-child(5) { animation-delay: 0.5s; }
+
+  @media (max-width: 600px) {
+    .branches { grid-template-columns: 1fr; }
+    .conclusion-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="kanji">先延ばし</div>
+  <div class="hero-tag">Hasil Survei Google Form · 2026</div>
+  <h1>Faktor Penyebab Prokrastinasi<br>dalam Mempelajari Bahasa Jepang</h1>
+  <p class="sub">Survey Kuantitatif · Skala Likert 1–5</p>
+  <div class="respondent-badge">Total Responden: <span>11</span> Mahasiswa</div>
+</div>
+
+<!-- CENTER NODE -->
+<div class="mindmap">
+  <div class="center-node">
+    <div class="jp">先延ばし</div>
+    <div class="id">PROKRASTINASI<br>BAHASA JEPANG</div>
+  </div>
+
+  <!-- BRANCHES GRID -->
+  <div class="branches">
+
+    <!-- BRANCH 1: PERILAKU MENUNDA -->
+    <div class="branch c1">
+      <div class="branch-header">
+        <div class="branch-icon">⏰</div>
+        <div>
+          <div class="branch-title">Perilaku Menunda</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Pola Prokrastinasi</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text">Menunda hingga mendekati deadline</div>
+        <div class="item-pct">45,5%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:45.5%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Mengerjakan secara terburu-buru</div>
+        <div class="item-pct">36,4%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:36.4%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Memilih aktivitas lebih menyenangkan</div>
+        <div class="item-pct">45,5%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:45.5%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Kesulitan memulai mengerjakan tugas</div>
+        <div class="item-pct">72,8%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:72.8%"></div></div>
+    </div>
+
+    <!-- BRANCH 2: FAKTOR PENYEBAB -->
+    <div class="branch c2">
+      <div class="branch-header">
+        <div class="branch-icon">🔍</div>
+        <div>
+          <div class="branch-title">Faktor Penyebab</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">(Pilihan Ganda, multi-jawaban)</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text">🥇 Merasa lelah / kelelahan</div>
+        <div class="item-pct">100%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:100%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Terlalu banyak beban/tugas</div>
+        <div class="item-pct">72,7%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:72.7%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Tidak memahami materi</div>
+        <div class="item-pct">63,6%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:63.6%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Kurang motivasi</div>
+        <div class="item-pct">54,5%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:54.5%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Manajemen waktu buruk & Distraksi media</div>
+        <div class="item-pct">36,4%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:36.4%"></div></div>
+    </div>
+
+    <!-- BRANCH 3: DAMPAK -->
+    <div class="branch c3">
+      <div class="branch-header">
+        <div class="branch-icon">📉</div>
+        <div>
+          <div class="branch-title">Dampak Prokrastinasi</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Setuju + Sangat Setuju</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text">Mempengaruhi nilai & performa akademik</div>
+        <div class="item-pct">72,8%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:72.8%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Merasa cemas saat deadline dekat</div>
+        <div class="item-pct">72,8%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:72.8%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Tidak puas dengan hasil tugas</div>
+        <div class="item-pct">54,6%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:54.6%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Materi dianggap sulit dipahami (netral)</div>
+        <div class="item-pct">45,5%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:45.5%"></div></div>
+    </div>
+
+    <!-- BRANCH 4: UPAYA MENGATASI -->
+    <div class="branch c4">
+      <div class="branch-header">
+        <div class="branch-icon">💡</div>
+        <div>
+          <div class="branch-title">Upaya Mengatasi</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Setuju + Sangat Setuju</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text">Berusaha mengurangi gangguan/distraksi</div>
+        <div class="item-pct">81,8%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:81.8%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Meningkatkan manajemen waktu</div>
+        <div class="item-pct">81,8%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:81.8%"></div></div>
+
+      <div class="item" style="margin-top:8px">
+        <div class="item-dot"></div>
+        <div class="item-text">Membuat jadwal belajar khusus</div>
+        <div class="item-pct">27,3%</div>
+      </div>
+      <div class="bar-wrap"><div class="bar" style="width:27.3%"></div></div>
+
+      <div style="margin-top:12px; padding:10px; background:rgba(251,146,60,0.08); border-radius:8px; border-left:3px solid var(--c4);">
+        <div style="font-size:11px; color:rgba(251,146,60,0.9); line-height:1.5;">
+          ⚠️ Mayoritas <em>sadar</em> perlunya perbaikan, namun implementasi jadwal belajar masih rendah (45,5% netral).
+        </div>
+      </div>
+    </div>
+
+    <!-- BRANCH 5: KESIMPULAN UTAMA -->
+    <div class="branch c5">
+      <div class="branch-header">
+        <div class="branch-icon">✅</div>
+        <div>
+          <div class="branch-title">Temuan Utama</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">Key Insights</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text"><strong style="color:var(--c5)">Faktor #1:</strong> Kelelahan fisik/mental (100% responden)</div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text"><strong style="color:var(--c5)">Dampak terbesar:</strong> Cemas & penurunan nilai akademik (72,8%)</div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text"><strong style="color:var(--c5)">Kesadaran tinggi</strong> untuk berubah, tapi eksekusi jadwal masih kurang</div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text"><strong style="color:var(--c5)">Materi Jepang</strong> dipersepsikan sulit → memicu penundaan</div>
+      </div>
+
+      <div class="item">
+        <div class="item-dot"></div>
+        <div class="item-text"><strong style="color:var(--c5)">Rekomendasi:</strong> Teknik manajemen energi + scaffolding materi</div>
+      </div>
+    </div>
+
+  </div><!-- /branches -->
+</div><!-- /mindmap -->
+
+<!-- OPEN ENDED SECTION -->
+<div class="conclusion" style="margin-top:28px;">
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(251,113,133,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">💬</div>
+      <div>
+        <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(251,113,133,0.8);">Pertanyaan Terbuka</div>
+        <div style="font-size:15px;font-weight:700;margin-top:2px;">Menurut Anda, apa dampak terbesar dari kebiasaan menunda tugas?</div>
+      </div>
+    </div>
+
+    <!-- Kategori dampak -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:28px;">
+
+      <div style="background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#fb7185;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">😰 Tekanan & Kepanikan</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Panik saat sudah mendekati waktu tenggat"</em><br>
+          • <em>"Keteteran, waktu sangat singkat — tidak bisa hasil maksimal"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#fb923c;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📉 Kualitas Kerja Menurun</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Tidak teliti, mengerjakan tugas seadanya saja"</em><br>
+          • <em>"Tugas dikerjakan secara tidak optimal"</em><br>
+          • <em>"Hasil tugas tidak maksimal"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🎓 Performa Akademik</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Performa akademik yang menurun"</em><br>
+          • <em>"Kecanduan menunda — siklus berulang"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🧠 Motivasi & Fokus</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Menjadi lebih malas, bingung memulai dari mana jika tugas banyak"</em><br>
+          • <em>"Terlena dengan waktu / pecahnya fokus"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#4ecdc4;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🗂️ Manajemen Tugas</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Tugas menumpuk"</em><br>
+          • <em>"Tidak teraturnya jadwal"</em>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Word cloud style summary -->
+    <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;border-left:3px solid #fb7185;">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#fb7185;margin-bottom:10px;">Kesimpulan Jawaban Terbuka</div>
+      <div style="font-size:13px;color:rgba(240,237,232,0.75);line-height:1.8;">
+        Seluruh responden menyadari dampak negatif konkret dari prokrastinasi. Dampak yang paling banyak diungkapkan berputar pada <strong style="color:#fb7185">tiga tema utama</strong>: 
+        (1) <strong style="color:#fb923c">kualitas hasil kerja yang buruk</strong> karena keterbatasan waktu, 
+        (2) <strong style="color:#fb7185">kepanikan dan stres</strong> akibat deadline mendekat, dan 
+        (3) <strong style="color:#a78bfa">penurunan performa akademik</strong> yang berpotensi menjadi siklus kebiasaan negatif berkelanjutan.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN ENDED 2 -->
+<div class="conclusion" style="margin-top:28px;">
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🛠️</div>
+      <div>
+        <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(52,211,153,0.8);">Pertanyaan Terbuka</div>
+        <div style="font-size:15px;font-weight:700;margin-top:2px;">Bagaimana cara paling efektif untuk mengatasi kebiasaan menunda tugas?</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:28px;">
+
+      <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🗓️ Manajemen Waktu</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Manage waktu dengan baik, pisahkan waktu belajar & waktu untuk diri sendiri"</em><br>
+          • <em>"Memfokuskan diri & lebih mengatur waktu"</em><br>
+          • <em>"Manajemen waktu yang baik"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#4ecdc4;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📋 Jadwal & To-Do List</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Membuat jadwal teratur, prioritaskan tugas yang harus dikerjakan lebih dulu"</em><br>
+          • <em>"Membuat list tugas dan tidak mudah terdistraksi"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(232,200,74,0.08);border:1px solid rgba(232,200,74,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#e8c84a;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">💪 Motivasi & Niat Diri</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Kuatkan niat dalam diri dan kurangi distraksi"</em><br>
+          • <em>"Kuatkan keinginan untuk mengerjakan di awal"</em>
+        </div>
+      </div>
+
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">👥 Dukungan Sosial</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.75);line-height:1.7;">
+          • <em>"Cari teman yang bisa diajak kerja bareng terus"</em><br>
+          <span style="font-size:11px;color:rgba(167,139,250,0.6);">→ Pendekatan accountability partner</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.15);border-radius:14px;padding:18px;">
+        <div style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🤷 Belum Tahu</div>
+        <div style="font-size:12px;color:rgba(240,237,232,0.55);line-height:1.7;">
+          • <em>"Tidak tahu saya"</em><br>
+          <span style="font-size:11px;color:rgba(148,163,184,0.5);">→ 1 responden belum memiliki strategi — perlu bimbingan lebih lanjut</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);border-radius:12px;padding:20px;border-left:3px solid #34d399;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#34d399;margin-bottom:10px;">Kesimpulan & Rekomendasi</div>
+      <div style="font-size:13px;color:rgba(240,237,232,0.75);line-height:1.8;">
+        Solusi paling banyak disepakati berfokus pada <strong style="color:#34d399">tiga pilar utama</strong>:
+        (1) <strong style="color:#4ecdc4">Manajemen waktu</strong> — menyusun jadwal dan memprioritaskan tugas,
+        (2) <strong style="color:#e8c84a">Penguatan motivasi internal</strong> — membangun niat dan disiplin diri sejak awal, dan
+        (3) <strong style="color:#a78bfa">Dukungan sosial</strong> — belajar bersama atau mencari accountability partner.
+        Satu responden belum memiliki strategi, menandakan perlunya edukasi manajemen diri yang lebih terstruktur.
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <span style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;font-size:11px;padding:5px 14px;border-radius:20px;">🗓️ Time Blocking</span>
+      <span style="background:rgba(78,205,196,0.12);border:1px solid rgba(78,205,196,0.3);color:#4ecdc4;font-size:11px;padding:5px 14px;border-radius:20px;">📋 Priority List</span>
+      <span style="background:rgba(232,200,74,0.12);border:1px solid rgba(232,200,74,0.3);color:#e8c84a;font-size:11px;padding:5px 14px;border-radius:20px;">💪 Self-Motivation</span>
+      <span style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;font-size:11px;padding:5px 14px;border-radius:20px;">👥 Accountability Partner</span>
+      <span style="background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3);color:#fb923c;font-size:11px;padding:5px 14px;border-radius:20px;">🚫 Kurangi Distraksi</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONCLUSION -->
+<div class="conclusion">
+  <div class="conclusion-box">
+    <h2>📊 Ringkasan Statistik Kunci</h2>
+    <div class="conclusion-grid">
+      <div class="key-stat">
+        <div class="num" style="color:var(--c1)">100%</div>
+        <div class="label">responden merasa<br>lelah sebagai faktor utama</div>
+      </div>
+      <div class="key-stat">
+        <div class="num" style="color:var(--c2)">72,7%</div>
+        <div class="label">merasa terlalu<br>banyak beban tugas</div>
+      </div>
+      <div class="key-stat">
+        <div class="num" style="color:var(--c3)">72,8%</div>
+        <div class="label">prokrastinasi berdampak<br>pada nilai & performa</div>
+      </div>
+      <div class="key-stat">
+        <div class="num" style="color:var(--c4)">81,8%</div>
+        <div class="label">berupaya meningkatkan<br>manajemen waktu</div>
+      </div>
+      <div class="key-stat">
+        <div class="num" style="color:var(--c5)">63,6%</div>
+        <div class="label">menunda karena tidak<br>memahami materi</div>
+      </div>
+    </div>
+
+    <div class="summary-text">
+      Berdasarkan survei terhadap <strong>11 responden</strong>, prokrastinasi dalam belajar bahasa Jepang didominasi oleh <strong>faktor kelelahan (100%)</strong>, beban tugas yang terlalu banyak (72,7%), dan kurangnya pemahaman materi (63,6%). Dampaknya signifikan terhadap performa akademik (72,8%) dan menimbulkan kecemasan saat mendekati deadline. Meski sebagian besar responden <em>menyadari</em> perlunya perbaikan manajemen waktu, implementasi nyata seperti membuat jadwal belajar masih rendah — hanya 27,3% yang setuju melakukannya. Diperlukan strategi yang lebih konkret: manajemen energi, pemecahan materi (scaffolding), dan pembuatan rutinitas belajar terjadwal.
+    </div>
+  </div>
+</div>
+
+<footer>
+  Faktor Penyebab Prokrastinasi dalam Mempelajari Bahasa Jepang · 先延ばしの要因 · 11 Responden
+</footer>
+
+<script>
+  // Animate bars on load
+  window.addEventListener('load', () => {
+    const bars = document.querySelectorAll('.bar');
+    bars.forEach(bar => {
+      const target = bar.style.width;
+      bar.style.width = '0';
+      setTimeout(() => { bar.style.width = target; }, 400);
+    });
+  });
+</script>
+</body>
+</html>
